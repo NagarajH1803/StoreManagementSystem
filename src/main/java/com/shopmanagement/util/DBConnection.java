@@ -18,18 +18,32 @@ public class DBConnection {
 
     static {
         try {
+            // Load db.properties as fallback for local development
             Properties props = new Properties();
             InputStream is = DBConnection.class.getClassLoader().getResourceAsStream("db.properties");
-            if (is == null) {
-                throw new RuntimeException("db.properties not found in classpath");
+            if (is != null) {
+                props.load(is);
             }
-            props.load(is);
+
+            // Environment variables take priority (used in production on Render/Docker)
+            // Falls back to db.properties values for local development
+            String driver = envOrProp("DB_DRIVER", props, "db.driver", "com.mysql.cj.jdbc.Driver");
+            String url = envOrProp("DB_URL", props, "db.url", null);
+            String username = envOrProp("DB_USERNAME", props, "db.username", null);
+            String password = envOrProp("DB_PASSWORD", props, "db.password", null);
+
+            if (url == null || username == null) {
+                throw new RuntimeException(
+                    "Database not configured. Set DB_URL/DB_USERNAME/DB_PASSWORD environment variables, " +
+                    "or create src/main/resources/db.properties (see db.properties.example)."
+                );
+            }
 
             HikariConfig config = new HikariConfig();
-            config.setDriverClassName(props.getProperty("db.driver"));
-            config.setJdbcUrl(props.getProperty("db.url"));
-            config.setUsername(props.getProperty("db.username"));
-            config.setPassword(props.getProperty("db.password"));
+            config.setDriverClassName(driver);
+            config.setJdbcUrl(url);
+            config.setUsername(username);
+            config.setPassword(password != null ? password : "");
 
             // Pool configuration
             config.setMinimumIdle(2);
@@ -73,5 +87,20 @@ public class DBConnection {
         if (dataSource != null && !dataSource.isClosed()) {
             dataSource.close();
         }
+    }
+
+    /**
+     * Read a config value: env var first, then properties file, then default.
+     */
+    private static String envOrProp(String envKey, Properties props, String propKey, String defaultValue) {
+        String envVal = System.getenv(envKey);
+        if (envVal != null && !envVal.isEmpty()) {
+            return envVal;
+        }
+        String propVal = props.getProperty(propKey);
+        if (propVal != null && !propVal.isEmpty()) {
+            return propVal;
+        }
+        return defaultValue;
     }
 }

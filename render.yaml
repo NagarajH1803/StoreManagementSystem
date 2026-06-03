@@ -1,0 +1,17 @@
+# Render Blueprint — Infrastructure-as-Code
+# https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: shop-management-system
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DB_URL
+        sync: false  # Set manually in Render dashboard
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+    healthCheckPath: /

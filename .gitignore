@@ -1,0 +1,32 @@
+# === Build output ===
+target/
+
+# === IDE files ===
+.classpath
+.project
+.settings/
+.vscode/
+.idea/
+*.iml
+
+# === Local server config ===
+.tomcat/
+
+# === OS files ===
+Thumbs.db
+.DS_Store
+
+# === Maven wrapper (optional, keep if needed) ===
+# .mvn/
+
+# === Compiled files ===
+*.class
+*.war
+*.jar
+*.ear
+
+# === Secrets / credentials ===
+src/main/resources/db.properties
+
+# === Logs ===
+*.log

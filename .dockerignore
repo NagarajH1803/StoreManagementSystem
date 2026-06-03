@@ -1,0 +1,11 @@
+.git/
+.gitignore
+target/
+.classpath
+.project
+.settings/
+.vscode/
+.idea/
+.tomcat/
+*.md
+render.yaml
